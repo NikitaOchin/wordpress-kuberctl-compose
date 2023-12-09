@@ -1,10 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert
-    kompose.version: 1.31.2 (a92241f79)
-  creationTimestamp: null
   labels:
     io.kompose.service: wordpress
   name: wordpress
@@ -16,10 +12,6 @@ spec:
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert
-        kompose.version: 1.31.2 (a92241f79)
-      creationTimestamp: null
       labels:
         io.kompose.network/opt-default: "true"
         io.kompose.service: wordpress
@@ -27,13 +19,25 @@ spec:
       containers:
         - env:
             - name: WORDPRESS_DB_HOST
-              value: db
+              valueFrom:
+                configMapKeyRef:
+                  name: wordpress-config
+                  key: WORDPRESS_DB_HOST
             - name: WORDPRESS_DB_NAME
-              value: wordpress
+              valueFrom:
+                configMapKeyRef:
+                  name: wordpress-config
+                  key: WORDPRESS_DB_NAME
             - name: WORDPRESS_DB_PASSWORD
-              value: wordpress
+              valueFrom:
+                secretKeyRef:
+                  name: wordpress-secrets
+                  key: WORDPRESS_DB_PASSWORD
             - name: WORDPRESS_DB_USER
-              value: wordpress
+              valueFrom:
+                secretKeyRef:
+                  name: wordpress-secrets
+                  key: WORDPRESS_DB_USER
           image: wordpress:latest
           name: wordpress
           ports:
